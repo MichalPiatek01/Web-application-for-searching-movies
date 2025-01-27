@@ -1,7 +1,8 @@
 package webapp.views;
 
-import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.login.LoginForm;
+import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -25,7 +26,12 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
         login.setAction("login");
 
-        add(new H1("Test Application"), login);
+        LoginI18n i18n = LoginI18n.createDefault();
+        i18n.getForm().setForgotPassword("Register");
+        login.setI18n(i18n);
+        login.addForgotPasswordListener(event -> navigateToRegistration());
+
+        add(login);
     }
 
     @Override
@@ -36,5 +42,9 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
                 .containsKey("error")) {
             login.setError(true);
         }
+    }
+
+    private void navigateToRegistration() {
+        UI.getCurrent().navigate("registration");
     }
 }

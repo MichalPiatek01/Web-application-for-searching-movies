@@ -3,14 +3,14 @@ package webapp.security;
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.provisioning.UserDetailsManager;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import webapp.services.UserService;
 import webapp.views.LoginView;
 
 @EnableWebSecurity
@@ -23,9 +23,12 @@ public class SecurityConfiguration
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth -> auth.requestMatchers(new AntPathRequestMatcher("/public/**"))
+        http.authorizeHttpRequests(auth -> auth.requestMatchers(new AntPathRequestMatcher("/home"))
                 .permitAll());
 
+        http.formLogin(form -> form
+                .loginPage("/login")
+                .defaultSuccessUrl("/home"));
         super.configure(http);
 
 
@@ -34,45 +37,24 @@ public class SecurityConfiguration
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        // Customize your WebSecurity configuration.
         super.configure(web);
     }
 
-    /**
-     * Demo UserDetailsManager which only provides two hardcoded
-     * in memory users and their roles.
-     * NOTE: This shouldn't be used in real world applications.
-     */
     @Bean
-    public UserDetailsManager userDetailsService() {
-        UserDetails user =
-                User.withUsername("user")
-                        .password("{noop}user")
-                        .roles("USER")
-                        .build();
-        UserDetails admin =
-                User.withUsername("admin")
-                        .password("{noop}admin")
-                        .roles("ADMIN")
-                        .build();
-        return new InMemoryUserDetailsManager(user, admin);
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
-//
-//    @Bean
-//    public AuthenticationProvider authenticationProvider() {
-//        System.out.println("Configuring AuthenticationProvider...");
-//        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-//        daoAuthenticationProvider.setUserDetailsService(userDetailsService());
-//
-//        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-//        System.out.println("Using PasswordEncoder: " + passwordEncoder.getClass().getName());
-//        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
-//
-//        return daoAuthenticationProvider;
-//    }
+    @Bean
+    public AuthenticationProvider authenticationProvider(UserService userService) {
+        System.out.println("Configuring AuthenticationProvider...");
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setUserDetailsService(userService);
+
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        System.out.println("Using PasswordEncoder: " + passwordEncoder.getClass().getName());
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
+
+        return daoAuthenticationProvider;
+    }
 }

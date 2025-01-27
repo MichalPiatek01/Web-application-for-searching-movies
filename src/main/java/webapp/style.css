@@ -1,0 +1,16 @@
+.watched-movies-layout {
+    display: flex;
+    flex-wrap: wrap; /* Zapewnia przejście do następnej linii, gdy brakuje miejsca */
+    gap: 10px; /* Przestrzeń między elementami */
+    justify-content: flex-start; /* Ustawia elementy na początek */
+}
+
+.movie-item {
+    width: 150px; /* Szerokość filmu */
+    text-align: center; /* Wyśrodkowanie tekstu w pionie */
+}
+
+.movie-poster {
+    width: 100%; /* Dopasowuje szerokość zdjęcia do elementu */
+    height: auto; /* Utrzymuje proporcje obrazu */
+}
