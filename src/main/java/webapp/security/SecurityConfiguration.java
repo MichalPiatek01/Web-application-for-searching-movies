@@ -26,9 +26,6 @@ public class SecurityConfiguration
         http.authorizeHttpRequests(auth -> auth.requestMatchers(new AntPathRequestMatcher("/home"))
                 .permitAll());
 
-        http.formLogin(form -> form
-                .loginPage("/login")
-                .defaultSuccessUrl("/home"));
         super.configure(http);
 
 

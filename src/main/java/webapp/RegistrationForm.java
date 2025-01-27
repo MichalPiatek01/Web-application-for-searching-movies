@@ -13,10 +13,18 @@ import lombok.Getter;
 
 import java.util.stream.Stream;
 
+@Getter
 public class RegistrationForm extends FormLayout {
+
+    private final H3 title;
+
+    private final TextField username;
+
+    private final EmailField email;
 
     private final PasswordField password;
     private final PasswordField passwordConfirm;
+
 
     @Getter
     private Span errorMessageField;
@@ -26,9 +34,9 @@ public class RegistrationForm extends FormLayout {
 
 
     public RegistrationForm() {
-        H3 title = new H3("Signup form");
-        TextField username = new TextField("Username");
-        EmailField email = new EmailField("Email");
+        title = new H3("Signup form");
+        username = new TextField("Username");
+        email = new EmailField("Email");
 
         password = new PasswordField("Password");
         passwordConfirm = new PasswordField("Confirm password");
@@ -46,7 +54,6 @@ public class RegistrationForm extends FormLayout {
                 submitButton);
 
         setMaxWidth("500px");
-
         setResponsiveSteps(
                 new ResponsiveStep("0", 1, ResponsiveStep.LabelsPosition.TOP),
                 new ResponsiveStep("490px", 2, ResponsiveStep.LabelsPosition.TOP));

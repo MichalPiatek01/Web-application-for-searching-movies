@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static org.atmosphere.annotation.AnnotationUtil.logger;
 
 
-@Route("home")
+@Route("")
 @PermitAll
 public class MainView extends VerticalLayout {
     private final MovieService movieService;
