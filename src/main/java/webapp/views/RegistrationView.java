@@ -15,18 +15,14 @@ import webapp.services.UserService;
 @Route("registration")
 public class RegistrationView extends VerticalLayout {
 
-    private final UserService userService;
     private final RegistrationForm registrationForm;
 
     public RegistrationView(UserService userService) {
-        this.userService = userService;
 
-        // Create the registration form
         this.registrationForm = new RegistrationForm();
         setHorizontalComponentAlignment(Alignment.CENTER, registrationForm);
         add(registrationForm);
 
-        // Bind the form with validation
         RegistrationFormBinder registrationFormBinder = new RegistrationFormBinder(registrationForm, userService);
         registrationFormBinder.addBindingAndValidation(this::showSuccessView);
     }

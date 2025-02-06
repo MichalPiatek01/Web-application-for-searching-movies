@@ -12,7 +12,7 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Movie {
     @JsonProperty("Title")
-    private String titleFromResponse;
+    private String title;
 
     @JsonProperty("Year")
     private String year;

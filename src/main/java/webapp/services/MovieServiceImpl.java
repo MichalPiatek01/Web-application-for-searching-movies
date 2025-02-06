@@ -1,6 +1,7 @@
 package webapp.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vaadin.flow.component.html.Span;
 import lombok.Getter;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -15,6 +16,8 @@ import webapp.repositories.MovieRepository;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Scanner;
 
 @Service
@@ -30,13 +33,12 @@ public class MovieServiceImpl implements MovieService {
         this.movieRepository = movieRepository;
     }
 
-    public Movie SendRequest(String title) {
+    public Movie SendRequest(String title) throws MovieNotFoundException {
         objectMapper = new ObjectMapper();
 
         try {
-            char replacement = '+';
-            title = title.replace(' ', replacement);
-            URL url = new URL("http://www.omdbapi.com/?t=" + title + "&apikey=8bc18b62");
+            title = title.replace(' ', '+'); // Replace spaces with '+'
+            URL url = new URL("http://www.omdbapi.com/?t=" + title + "&plot=full" + "&apikey=8bc18b62");
             System.out.println(url);
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -54,8 +56,13 @@ public class MovieServiceImpl implements MovieService {
                 while (scanner.hasNext()) {
                     informationString.append(scanner.nextLine());
                 }
-
                 scanner.close();
+
+                Map responseMap = objectMapper.readValue(informationString.toString(), Map.class);
+
+                if ("False".equals(responseMap.get("Response"))) {
+                    throw new MovieNotFoundException("Movie not found: " + title);
+                }
 
                 this.movie = objectMapper.readValue(informationString.toString(), Movie.class);
                 System.out.println("Movie Details: " + movie);
@@ -64,9 +71,13 @@ public class MovieServiceImpl implements MovieService {
 
         } catch (MalformedURLException e) {
             System.out.println("Wrong URL format");
+        } catch (MovieNotFoundException e) {
+            System.out.println(e.getMessage());
+            throw e;
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
+
         return null;
     }
 
@@ -128,5 +139,28 @@ public class MovieServiceImpl implements MovieService {
     @Override
     public void save(MovieDB movieDB) {
         movieRepository.save(movieDB);
+    }
+
+    @Override
+    public Span getMovieInfo(Movie movie) {
+        String year = movie.getYear();
+        String rated = movie.getRated();
+        String runtime = movie.getRuntime();
+        String genre = movie.getGenre();
+        Span movieDetails = new Span();
+        if (Objects.equals(year, "N/A") & Objects.equals(rated, "N/A") & Objects.equals(runtime, "N/A") &
+                Objects.equals(genre, "N/A")) {
+
+            movieDetails.add("Movie details not available.");
+        } else {
+            movieDetails.add(year + " " + rated + " " + runtime + " " + genre);
+        }
+        return movieDetails;
+    }
+
+    public static class MovieNotFoundException extends Exception {
+        public MovieNotFoundException(String message) {
+            super(message);
+        }
     }
 }

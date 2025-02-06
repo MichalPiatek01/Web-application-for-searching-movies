@@ -1,6 +1,7 @@
 package webapp.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -31,14 +32,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void save(User user) {
-        User users = new User();
+        try {
+            User users = new User();
 
-        users.setUsername(user.getUsername());
-        users.setPassword(passwordEncoder.encode(user.getPassword()));
-        users.setEmail(user.getEmail());
-        users.setRole("ROLE_USER");
+            users.setUsername(user.getUsername());
+            users.setPassword(passwordEncoder.encode(user.getPassword()));
+            users.setEmail(user.getEmail());
+            users.setRole("ROLE_USER");
 
-        userRepository.save(users);
+            userRepository.save(users);
+        } catch (DataIntegrityViolationException e) {
+            if (e.getMessage().contains("narusza ograniczenie unikalności") && e.getMessage().contains("(email)")) {
+                throw new DuplicateEmailException("Email '" + user.getEmail() + "' is already in use.");
+            } else if (e.getMessage().contains("narusza ograniczenie unikalności") && e.getMessage().contains("(username)")) {
+                throw new DuplicateUsernameException("Username '" + user.getUsername() + "' is already taken.");
+            }
+            throw e;
+        }
     }
 
     @Override
@@ -52,5 +62,17 @@ public class UserServiceImpl implements UserService {
         List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(users.getRole()));
 
         return new org.springframework.security.core.userdetails.User(users.getUsername(), users.getPassword(), authorities);
+    }
+
+    public static class DuplicateUsernameException extends RuntimeException {
+        public DuplicateUsernameException(String message) {
+            super(message);
+        }
+    }
+
+    public static class DuplicateEmailException extends RuntimeException {
+        public DuplicateEmailException(String message) {
+            super(message);
+        }
     }
 }

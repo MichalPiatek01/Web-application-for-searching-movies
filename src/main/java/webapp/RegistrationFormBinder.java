@@ -3,6 +3,8 @@ package webapp;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
@@ -11,6 +13,7 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
 import webapp.entities.User;
 import webapp.services.UserService;
+import webapp.services.UserServiceImpl;
 
 public class RegistrationFormBinder {
 
@@ -52,11 +55,32 @@ public class RegistrationFormBinder {
                 User userBean = new User();
                 binder.writeBean(userBean);
                 userService.save(userBean);
-
                 onSuccess.run();
-            } catch (ValidationException exception) {
+            } catch (UserServiceImpl.DuplicateUsernameException e) {
+                showErrorDialog("This username is already taken. Choose a different one.");
+            } catch (UserServiceImpl.DuplicateEmailException e) {
+                showErrorDialog("This email is already in use. Use another email address.");
+            } catch (ValidationException e) {
+                showErrorNotification();
             }
         });
+    }
+
+    private void showErrorNotification() {
+        Notification notification = new Notification("Please check the form for errors.", 3000, Notification.Position.MIDDLE);
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.open();
+    }
+
+    private void showErrorDialog(String message) {
+        Dialog dialog = new Dialog();
+        Span span = new Span(message);
+        dialog.add(span);
+
+        dialog.setCloseOnEsc(true);
+        dialog.setCloseOnOutsideClick(true);
+
+        dialog.open();
     }
 
 
