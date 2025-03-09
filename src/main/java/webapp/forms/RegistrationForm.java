@@ -1,4 +1,4 @@
-package webapp;
+package webapp.forms;
 
 import com.vaadin.flow.component.HasValueAndElement;
 import com.vaadin.flow.component.button.Button;
@@ -17,21 +17,14 @@ import java.util.stream.Stream;
 public class RegistrationForm extends FormLayout {
 
     private final H3 title;
-
     private final TextField username;
-
     private final EmailField email;
-
     private final PasswordField password;
     private final PasswordField passwordConfirm;
-
-
     @Getter
     private Span errorMessageField;
-
     @Getter
     private Button submitButton;
-
 
     public RegistrationForm() {
         title = new H3("Signup form");

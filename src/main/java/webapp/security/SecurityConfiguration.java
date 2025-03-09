@@ -23,8 +23,8 @@ public class SecurityConfiguration
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth -> auth.requestMatchers(new AntPathRequestMatcher("/home"))
-                .permitAll());
+        http.authorizeHttpRequests(auth -> auth.requestMatchers
+                (new AntPathRequestMatcher("/")).permitAll());
 
         super.configure(http);
 

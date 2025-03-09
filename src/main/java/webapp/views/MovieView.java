@@ -1,9 +1,9 @@
 package webapp.views;
 
 import com.vaadin.flow.component.Html;
-import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
@@ -42,7 +42,7 @@ public class MovieView extends VerticalLayout implements HasUrlParameter<String>
     TextField searchField = new TextField();
     Div infoDiv = new Div();
     Div titleDiv = new Div();
-    Div yearDiv = new Div();
+    Div infoAndRatingsDiv = new Div();
     Div genreDiv = new Div();
 
     public MovieView(MovieService movieService, AuthenticationContext authContext, MovieMapper movieMapper,
@@ -54,7 +54,7 @@ public class MovieView extends VerticalLayout implements HasUrlParameter<String>
         this.watchedService = watchedService;
         this.userService = userService;
         this.commentService = commentService;
-        add(getSearchbar(), titleDiv, yearDiv, infoDiv, genreDiv);
+        add(getSearchbar(), titleDiv, infoAndRatingsDiv, infoDiv, genreDiv);
     }
 
     public HorizontalLayout getSearchbar() {
@@ -62,8 +62,8 @@ public class MovieView extends VerticalLayout implements HasUrlParameter<String>
         searchField.setClearButtonVisible(true);
 
         Button searchButton = new Button("Search");
-        searchButton.addClickListener(event -> UI.getCurrent().navigate(MovieView.class, searchField.getValue()));
-        searchButton.addClickShortcut(Key.ENTER);
+        searchButton.addClickListener(event -> UI.getCurrent().navigate(MovieView.class,
+                searchField.getValue()));
         HorizontalLayout
                 header =
                 authContext.getAuthenticatedUser(UserDetails.class)
@@ -103,7 +103,7 @@ public class MovieView extends VerticalLayout implements HasUrlParameter<String>
             Movie movie = movieService.SendRequest(searchString);
             if (!Objects.equals(movie.getPoster(), "N/A")) {
                 Image posterImage = new Image(movie.getPoster(), "Poster");
-                posterImage.setWidth("300px");
+                posterImage.setWidth("350px");
                 posterImage.setHeight("500px");
                 infoDiv.add(posterImage);
             } else {
@@ -117,7 +117,7 @@ public class MovieView extends VerticalLayout implements HasUrlParameter<String>
                 String iframe = "<iframe width='900' height='500' src='https://www.youtube.com/embed/"
                         + videoId + "' frameborder='0' allowfullscreen></iframe>";
                 Html videoFrame = new Html(iframe);
-                videoFrame.getElement().getStyle().set("margin-left", "50px");
+                videoFrame.getElement().getStyle().set("margin-left", "175px");
                 infoDiv.add(videoFrame);
             } else {
                 infoDiv.add("Trailer not found.");
@@ -148,7 +148,7 @@ public class MovieView extends VerticalLayout implements HasUrlParameter<String>
             spacer.setWidth("950px");
 
             yearLayout.add(movieDetails, spacer, ratingWrapper);
-            yearDiv.add(yearLayout);
+            infoAndRatingsDiv.add(yearLayout);
 
             addRatingAndComments(movie.getTitle());
             addAllComments(movie.getTitle());
@@ -221,7 +221,8 @@ public class MovieView extends VerticalLayout implements HasUrlParameter<String>
                             newComment.setCommentText(commentField.getValue());
 
                             commentService.save(newComment);
-                            logger.info("User {} rated {} with {} and commented: {}", user.getUsername(), title, ratingValue, newComment.getCommentText());
+                            logger.info("User {} rated {} with {} and commented: {}", user.getUsername(),
+                                    title, ratingValue, newComment.getCommentText());
                             searchMovie(title);
                         } catch (NumberFormatException e) {
                             logger.info("Invalid rating input: {}. Must be a number.", ratingField.getValue());
@@ -235,7 +236,6 @@ public class MovieView extends VerticalLayout implements HasUrlParameter<String>
         ratingLayout.setAlignItems(Alignment.CENTER);
         genreDiv.add(spacing, ratingLayout);
     }
-
 
     private void addAllComments(String title) {
         Div spacing = new Div();
@@ -263,25 +263,54 @@ public class MovieView extends VerticalLayout implements HasUrlParameter<String>
                 allComments.remove(userComment);
 
                 if (userComment != null) {
-                    String userCommentText = "Your comment: " + userComment.getCommentText() +
-                            " (Rating: " + userComment.getRating() + ")";
-                    Span userCommentSpan = new Span(userCommentText);
+                    Span userCommentSpan = new Span("Your comment: " + userComment.getCommentText() +
+                            " (Rating: " + userComment.getRating() + ")");
                     userCommentSpan.addClassName("user-comment");
-                    commentsLayout.add(userCommentSpan);
+
+                    Button deleteButton = new Button("Delete Comment", event -> {
+                        commentService.delete(user.getUserId(), movie.getMovieId());
+                        logger.info("User {} deleted their comment on {}", user.getUsername(), title);
+                        searchMovie(title);
+                    });
+                    deleteButton.addClassName("delete-comment-button");
+
+                    HorizontalLayout userCommentLayout = new HorizontalLayout(userCommentSpan, deleteButton);
+                    userCommentLayout.setAlignItems(Alignment.CENTER);
+
+                    commentsLayout.add(userCommentLayout);
                 }
 
                 for (Comment comment : allComments) {
-                    String commentText = comment.getUser().getUsername() + ": " + comment.getCommentText() +
-                            " (Rating: " + comment.getRating() + ")";
-                    Span commentSpan = new Span(commentText);
+                    HorizontalLayout commentLayout = new HorizontalLayout();
+                    commentLayout.setAlignItems(Alignment.CENTER);
+
+                    Span commentSpan = new Span(comment.getUser().getUsername() + ": " + comment.getCommentText() +
+                            " (Rating: " + comment.getRating() + ")");
                     commentSpan.addClassName("comment-item");
-                    commentsLayout.add(commentSpan);
+
+                    commentLayout.add(commentSpan);
+
+                    if (user.getRole().equals("ROLE_ADMIN")) {
+                        Button adminDeleteButton = new Button("Delete", event -> {
+                            commentService.delete(comment.getUser().getUserId(), movie.getMovieId());
+                            logger.info("Admin {} deleted {}'s comment on {}", user.getUsername(),
+                                    comment.getUser().getUsername(), title);
+                            searchMovie(title);
+                        });
+                        adminDeleteButton.addClassName("admin-delete-button");
+                        adminDeleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+
+                        commentLayout.add(adminDeleteButton);
+                    }
+
+                    commentsLayout.add(commentLayout);
                 }
             }
         });
 
         genreDiv.add(spacing, commentsLayout);
     }
+
 
     private HorizontalLayout addRating(Movie movie) {
         HorizontalLayout scoreLayout = new HorizontalLayout();
@@ -299,7 +328,7 @@ public class MovieView extends VerticalLayout implements HasUrlParameter<String>
             metaScore.add("Metascore not available.");
         }
 
-        Integer appScore = commentService.getMovieScore(movieService.findByTitle(movie.getTitle()).getMovieId());
+        Float appScore = commentService.getMovieScore(movieService.findByTitle(movie.getTitle()).getMovieId());
         if (appScore == null) {
             appScoreSpan.setText("No website rating yet.");
         } else {
@@ -359,7 +388,7 @@ public class MovieView extends VerticalLayout implements HasUrlParameter<String>
 
     private void clearDivs() {
         titleDiv.removeAll();
-        yearDiv.removeAll();
+        infoAndRatingsDiv.removeAll();
         genreDiv.removeAll();
         infoDiv.removeAll();
     }
@@ -369,6 +398,7 @@ public class MovieView extends VerticalLayout implements HasUrlParameter<String>
         if (movieTitle != null && !movieTitle.isEmpty()) {
             searchMovie(movieTitle);
         } else {
+            clearDivs();
             add(new Paragraph("Movie title is not provided."));
         }
     }

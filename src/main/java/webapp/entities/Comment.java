@@ -3,17 +3,19 @@ package webapp.entities;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Setter
 @Getter
 @Entity
+@ToString
 @Table(name = "Comments")
 public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long commentId;
-    
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_user_comment"))
     private User user;

@@ -101,7 +101,8 @@ public class MainView extends VerticalLayout {
                         VerticalLayout movieLayout = new VerticalLayout();
                         movieLayout.addClassName("movie-item");
 
-                        if (Objects.equals(movie.getPoster(), "N/A") || movie.getPoster() == null || movie.getPoster().isEmpty()) {
+                        if (Objects.equals(movie.getPoster(), "N/A") || movie.getPoster() == null
+                                || movie.getPoster().isEmpty()) {
                             Span posterText = new Span("Poster not available");
                             posterText.addClassName("poster-placeholder");
                             posterText.addClickListener(event -> searchMovie(movie.getTitle()));
@@ -141,7 +142,7 @@ public class MainView extends VerticalLayout {
             return null;
         });
         VerticalLayout watchedMoviesLayout2 = new VerticalLayout();
-        Span watchlist = new Span("Watchlist:");
+        Span watchlist = new Span("Watched films:");
         watchlist.addClassName("watchlist");
         watchedMoviesLayout2.add(watchlist, watchedMoviesLayout);
         watchedMoviesLayout.addClassName("watched-movies-layout2");

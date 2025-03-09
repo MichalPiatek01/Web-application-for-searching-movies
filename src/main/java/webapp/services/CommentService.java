@@ -14,5 +14,5 @@ public interface CommentService {
 
     List<Comment> getAllComments(Long movieId);
 
-    Integer getMovieScore(Long movieId);
+    Float getMovieScore(Long movieId);
 }

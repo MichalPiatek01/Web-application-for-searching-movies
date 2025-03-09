@@ -21,8 +21,10 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void delete(Long userId, Long movieId) {
-        Comment Comment = commentRepository.findByUser_UserIdAndMovie_MovieId(userId, movieId);
-        commentRepository.delete(Comment);
+        Comment comment = commentRepository.findByUser_UserIdAndMovie_MovieId(userId, movieId);
+        if (comment != null) {
+            commentRepository.delete(comment);
+        }
     }
 
     @Override
@@ -36,15 +38,13 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Integer getMovieScore(Long movieId) {
+    public Float getMovieScore(Long movieId) {
         List<Comment> comments = commentRepository.findAllByMovie_MovieId(movieId);
-        if (!comments.isEmpty()) {
-            int score = 0;
-            for (Comment comment : comments) {
-                score = score + comment.getRating();
-            }
-            return score / comments.size();
-        }
-        return null;
+        return comments.isEmpty() ? null
+                : (float) comments.stream()
+                .mapToInt(Comment::getRating)
+                .average()
+                .orElse(0);
     }
+
 }

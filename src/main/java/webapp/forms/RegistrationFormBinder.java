@@ -1,5 +1,6 @@
-package webapp;
+package webapp.forms;
 
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -64,6 +65,7 @@ public class RegistrationFormBinder {
                 showErrorNotification();
             }
         });
+        registrationForm.getSubmitButton().addClickShortcut(Key.ENTER);
     }
 
     private void showErrorNotification() {
@@ -93,7 +95,7 @@ public class RegistrationFormBinder {
             enablePasswordValidation = true;
             return ValidationResult.ok();
         }
-        String pass2 = registrationForm.getPasswordField().getValue();
+        String pass2 = registrationForm.getPasswordConfirmField().getValue();
         if (pass1.equals(pass2)) {
             return ValidationResult.ok();
         }

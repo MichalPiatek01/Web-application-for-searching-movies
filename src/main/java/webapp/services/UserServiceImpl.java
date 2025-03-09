@@ -44,7 +44,8 @@ public class UserServiceImpl implements UserService {
         } catch (DataIntegrityViolationException e) {
             if (e.getMessage().contains("narusza ograniczenie unikalności") && e.getMessage().contains("(email)")) {
                 throw new DuplicateEmailException("Email '" + user.getEmail() + "' is already in use.");
-            } else if (e.getMessage().contains("narusza ograniczenie unikalności") && e.getMessage().contains("(username)")) {
+            } else if (e.getMessage().contains("narusza ograniczenie unikalności") && e.getMessage().contains
+                    ("(username)")) {
                 throw new DuplicateUsernameException("Username '" + user.getUsername() + "' is already taken.");
             }
             throw e;
@@ -61,7 +62,8 @@ public class UserServiceImpl implements UserService {
 
         List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(users.getRole()));
 
-        return new org.springframework.security.core.userdetails.User(users.getUsername(), users.getPassword(), authorities);
+        return new org.springframework.security.core.userdetails.User(users.getUsername(), users.getPassword(),
+                authorities);
     }
 
     public static class DuplicateUsernameException extends RuntimeException {
