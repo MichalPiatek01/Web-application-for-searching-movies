@@ -151,6 +151,20 @@ public class MovieServiceImpl implements MovieService {
         return movieDetails;
     }
 
+    @Override
+    public MovieDB mapMovieToDB(Movie movie) {
+        if ( movie == null ) {
+            return null;
+        }
+
+        MovieDB movieDB = new MovieDB();
+
+        movieDB.setTitle( movie.getTitle() );
+        movieDB.setPoster( movie.getPoster() );
+
+        return movieDB;
+    }
+
     public static class MovieNotFoundException extends Exception {
         public MovieNotFoundException(String message) {
             super(message);

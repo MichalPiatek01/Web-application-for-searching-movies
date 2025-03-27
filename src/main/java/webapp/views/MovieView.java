@@ -20,7 +20,6 @@ import com.vaadin.flow.spring.security.AuthenticationContext;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.security.core.userdetails.UserDetails;
 import webapp.entities.*;
-import webapp.mappers.MovieMapper;
 import webapp.services.*;
 
 import java.util.List;
@@ -35,7 +34,6 @@ import static org.atmosphere.annotation.AnnotationUtil.logger;
 public class MovieView extends VerticalLayout implements HasUrlParameter<String> {
     private final MovieService movieService;
     private final transient AuthenticationContext authContext;
-    private final MovieMapper movieMapper;
     private final WatchedService watchedService;
     private final UserService userService;
     private final CommentService commentService;
@@ -45,12 +43,11 @@ public class MovieView extends VerticalLayout implements HasUrlParameter<String>
     Div infoAndRatingsDiv = new Div();
     Div genreDiv = new Div();
 
-    public MovieView(MovieService movieService, AuthenticationContext authContext, MovieMapper movieMapper,
-                     WatchedService watchedService, UserService userService, CommentService commentService) {
+    public MovieView(MovieService movieService, AuthenticationContext authContext, WatchedService watchedService,
+                     UserService userService, CommentService commentService) {
         getStyle().set("font-size", "20px");
         this.movieService = movieService;
         this.authContext = authContext;
-        this.movieMapper = movieMapper;
         this.watchedService = watchedService;
         this.userService = userService;
         this.commentService = commentService;
@@ -123,7 +120,7 @@ public class MovieView extends VerticalLayout implements HasUrlParameter<String>
                 infoDiv.add("Trailer not found.");
             }
 
-            MovieDB movieDB = movieMapper.mapMovieDB(movie);
+            MovieDB movieDB = movieService.mapMovieToDB(movie);
             if (movieDB.getTitle() != null && !movieDB.getTitle().isBlank() &&
                     !movieService.doesMovieExist(movieDB.getTitle())) {
                 movieService.save(movieDB);

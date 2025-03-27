@@ -17,4 +17,6 @@ public interface MovieService {
     void save(MovieDB movieDB);
 
     Span getMovieInfo(Movie movie);
+
+    MovieDB mapMovieToDB(Movie movie);
 }
