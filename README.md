@@ -11,7 +11,7 @@ This project is a web application for searching movies using data from The Open 
 # Prerequisites
 
 - JDK 22
-- PostrgeSQL
+- Maven
 - PostgeSQL server
 
 # Getting Started
@@ -26,8 +26,9 @@ This project is a web application for searching movies using data from The Open 
 Getting stared with docker (docker required)
 
 1. Clone the repository.
-2. Use "docker compose up" in project directory to start multi-container application.
-3. Access the application through the provided URL.
+2. Use "mvn package" in project directory to package application in to jar file.
+3. Use "docker compose up" in project directory to start multi-container application.
+4. Access the application through the provided URL.
 
 # PostgreSQL Database Diagram 
 
