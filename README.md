@@ -18,6 +18,7 @@ This project is a web application for searching movies using data from The Open 
 
 1. Clone the repository.
 2. Configure the PostgreSQL database settings in the application properties file.
+- Change spring.datasource.url=jdbc:postgresql://postgres:5432/postgres to spring.datasource.url=jdbc:postgresql://localhost:5432/postgres
 - You can set spring.jpa.hibernate.ddl-auto=create to have the schema created automatically. This setting results in data deletion upon each creation, but you can switch to 'update' or 'create-only' if you intend to persist data across multiple application executions.
 3. Make sure PostgreSQL server is running.
 4. Run the application.
